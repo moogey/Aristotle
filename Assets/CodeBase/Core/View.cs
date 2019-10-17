@@ -43,7 +43,7 @@ public class View : MonoBehaviour
     {
         mainCamera = Camera.main;
         Debug.Log(mainCamera.transform.position.x);
-        addCanvasToMainCamera(testFab.GetComponent<Canvas>());
+       // addCanvasToMainCamera(testFab.GetComponent<Canvas>());
     }
 
     // Update is called once per frame

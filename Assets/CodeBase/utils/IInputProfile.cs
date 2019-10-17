@@ -5,6 +5,5 @@ using System;
 public interface IInputProfile 
 {
     void checkInput();
-    void addListener(InputEvent eventType ,string eventName, Action callback);
-        
+    void addListener(InputEvent eventType ,string eventName, Action callback);     
 }
