@@ -1,7 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System;
+﻿using System.Collections.Generic;
+
+/// <summary>
+/// StateMachine Holds States and allows you to find/Share/Set State Objects
+/// </summary>
+/// <typeparam name="T">Identifier Type for states (Your Enum, String)</typeparam>
 
 public class StateMachine<T>
 {
@@ -44,9 +46,4 @@ public class StateMachine<T>
 
         return null;
     }
-
-
-    
-
-
 }

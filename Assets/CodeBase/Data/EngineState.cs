@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public enum Gamestate
+public enum EngineState
 {
     MENU = 0,
     ACTIVE = 1,

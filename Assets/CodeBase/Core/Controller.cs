@@ -1,24 +1,28 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
 
 
 public class Controller : MonoBehaviour
 {
+    /// <summary>
+    /// The Controller is Responsible for Event Dispatching for Application wide Events and States
+    /// </summary>
     [HideInInspector]
     public static Controller instance;
     [HideInInspector]
     public LocalizationController LocalizationController;
     [HideInInspector]
-    public Gamestate state { get { return _engineStateMachine._currentState.name; } }
+    public ControllerStateMachine stateMachine { get; private set; }
+
 
     [SerializeField]
     private LocalizationData _localizationData;
     [SerializeField]
     private string _defaultLanguageCode = "en";
-    private Dictionary<string, List<Action>> _eventList;
-    private StateMachine<Gamestate> _engineStateMachine;
+
+    private Dictionary<EngineEvents, AEvent> _eventList;
+
 
     private void Awake()
     {
@@ -39,87 +43,59 @@ public class Controller : MonoBehaviour
         LocalizationController = new LocalizationController(_localizationData);
         LocalizationController.setLanguage(_defaultLanguageCode);
 
-        _eventList = new Dictionary<string, List<Action>>();
-        _engineStateMachine = new StateMachine<Gamestate>();
-        _engineStateMachine.RegisterState(new State<Gamestate>(Gamestate.ACTIVE));
-        _engineStateMachine.RegisterState(new State<Gamestate>(Gamestate.CUTSCENES));
-        _engineStateMachine.RegisterState(new State<Gamestate>(Gamestate.LOADING_STATE));
-        _engineStateMachine.RegisterState(new State<Gamestate>(Gamestate.MENU));
-        _engineStateMachine.RegisterState(new State<Gamestate>(Gamestate.PLAYER_DEAD));
-        _engineStateMachine.RegisterState(new State<Gamestate>(Gamestate.STAGE_END));
-
+        _eventList = new Dictionary<EngineEvents, AEvent>();
+        _eventList.Add(EngineEvents.ENGINE_CHECKPOINT_REACHED, new AEvent());
+        _eventList.Add(EngineEvents.ENGINE_GAME_OVER, new AEvent());
+        _eventList.Add(EngineEvents.ENGINE_GAME_PAUSE, new AEvent());
+        _eventList.Add(EngineEvents.ENGINE_GAME_START, new AEvent());
+        _eventList.Add(EngineEvents.ENGINE_LOAD_LEVEL, new AEvent());
+        _eventList.Add(EngineEvents.ENGINE_STAGE_COMPLETE, new AEvent());
+        stateMachine = new ControllerStateMachine(); // Must be created After events
+        
     }
 
     // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyUp(KeyCode.Space))
-            Dispatch(GameEventType.ENGINE_GAME_START);
-        else if (Input.GetKeyUp(KeyCode.KeypadEnter))
-            Dispatch(GameEventType.ENGINE_GAME_PAUSE);
+            Controller.instance.Dispatch(EngineEvents.ENGINE_GAME_START);
     }
-
-    public void AddEventListener(string type, Action callback)
-    {
-        if (!_eventList.ContainsKey(type))
-            _eventList[type] = new List<Action>();
-
-        _eventList[type].Add(callback);
-    }
-
-    public void RemoveEventListener(string type, Action callback)
+    /// <summary>
+    /// Add a function that will be called whenever an event is dispatched
+    /// GARBAGE COLLECTION WILL NOT REMOVE EVENTS, YOU MUST DO THIS BEFORE OBJECT DESTRUCTION OR THERE WILL BE MEMORY LEAKS
+    /// </summary>
+    /// <param name="type"> The event you want to listen for</param>
+    /// <param name="callback">The Function that you wish to recieve the response(MUST TAKE IN A System.Object param) </param>
+    public void AddEventListener(EngineEvents type, Action<System.Object> callback)
     {
         if (_eventList.ContainsKey(type))
-            _eventList[type].Remove(callback); 
+            _eventList[type].AddListener(callback);
+        
     }
 
-    public void AddStateListener(Gamestate state, Action callback)
+    /// <summary>
+    /// Remove a function that was being called whenever an event is dispatched
+    /// </summary>
+    /// <param name="type"> The event you were listening for</param>
+    /// <param name="callback">The Function that was recieving the response(MUST TAKE IN A System.Object param) </param>
+    public void RemoveEventListener(EngineEvents type, Action<System.Object> callback)
     {
-        State<Gamestate> foundState = _engineStateMachine.Find(state);
-        if (foundState != null)
-            foundState.AddListener(callback);
-    }
-
-    public void RemoveStateLisntener(Gamestate state, Action callback)
-    {
-        State<Gamestate> foundState = _engineStateMachine.Find(state);
-        if (foundState != null)
-            foundState.RemoveListener(callback);
-    }
-
-    public void Dispatch(string type)
-    {
-        if (type == GameEventType.ENGINE_STATE_CHANGE)
-        {
-            Debug.Log("State Change is a ReadOnly event");
-            return;
-        }
-
         if (_eventList.ContainsKey(type))
-            foreach (Action callback in _eventList[type])
-                callback.DynamicInvoke();
+            _eventList[type].RemoveListener(callback); 
+    }
+
+    /// <summary>
+    /// Dispatch an EngineEvent.
+    /// </summary>
+    /// <param name="type"> The event you wish to disatch</param>
+    public void Dispatch(EngineEvents type)
+    {
+        if (_eventList.ContainsKey(type))
+            _eventList[type].Dispatch();
         else
             Debug.Log("Warning: No currenlty registered listners for event :" + type);
 
-        CheckState(type);
     }
 
-    private void CheckState(string type)
-    {
-        switch (type)
-        {
-            case GameEventType.ENGINE_GAME_START: _engineStateMachine.SetState(Gamestate.ACTIVE); break;
-            case GameEventType.ENGINE_STAGE_COMPLETE: _engineStateMachine.SetState(Gamestate.STAGE_END); break;
-            case GameEventType.ENGINE_LOAD_LEVEL: _engineStateMachine.SetState(Gamestate.LOADING_STATE); break;
-            case GameEventType.ENGINE_GAME_PAUSE: _engineStateMachine.SetState(Gamestate.MENU); break;
-            case GameEventType.PLAYER_DEATH: _engineStateMachine.SetState(Gamestate.PLAYER_DEAD); break;
 
-            default: return;
-        }
-
-        foreach (Action callback in _eventList[GameEventType.ENGINE_STATE_CHANGE])
-            callback.DynamicInvoke();
-
-
-    }
 }

@@ -64,17 +64,17 @@
   <ItemGroup>
     <Compile Include="Assets\CodeBase\Core\Controller.cs" />
     <Compile Include="Assets\CodeBase\Core\Model.cs" />
-    <Compile Include="Assets\CodeBase\Core\StateMachine.cs" />
     <Compile Include="Assets\CodeBase\Core\View.cs" />
-    <Compile Include="Assets\CodeBase\Data\Gamestate.cs" />
+    <Compile Include="Assets\CodeBase\Data\ControllerStateMachine.cs" />
+    <Compile Include="Assets\CodeBase\Data\EngineState.cs" />
     <Compile Include="Assets\CodeBase\Data\State.cs" />
+    <Compile Include="Assets\CodeBase\Data\StateMachine.cs" />
     <Compile Include="Assets\CodeBase\Entities\player\Player.cs" />
     <Compile Include="Assets\CodeBase\Entities\player\PlayerInputProfile.cs" />
     <Compile Include="Assets\CodeBase\Entities\sphere\Sphere.cs" />
     <Compile Include="Assets\CodeBase\Entities\sphere\SphereInputProfile.cs" />
     <Compile Include="Assets\CodeBase\Events\AEvent.cs" />
-    <Compile Include="Assets\CodeBase\Events\EventProfile.cs" />
-    <Compile Include="Assets\CodeBase\Events\GameEventType.cs" />
+    <Compile Include="Assets\CodeBase\Events\EngineEvents.cs" />
     <Compile Include="Assets\CodeBase\Events\IEvent.cs" />
     <Compile Include="Assets\CodeBase\Localization\LocalizationController.cs" />
     <Compile Include="Assets\CodeBase\Localization\LocalizationData.cs" />
