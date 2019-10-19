@@ -37,7 +37,6 @@ public class State<T,X> : AEvent
 
     public void Dispatch()
     {
-        Debug.Log("you call me right?");
         Dispatch(_returnValue);
     }
 
