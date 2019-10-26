@@ -113,9 +113,13 @@ public class Player : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
         inputProfile.checkInput();
+    }
+
+    void FixedUpdate()
+    {
         //print("currentAbility: " + currentAbility);
 
         //print("jumpSpeed: " + jumpSpeed);
@@ -172,17 +176,13 @@ public class Player : MonoBehaviour
         if (playerRigidBody.velocity.y > 0.1)
         {
             _isGrounded = false;
-        }
-
-        // player is falling
-        if (playerRigidBody.velocity.y < -0.1)
-        {
-            _isFalling = true;
-            _isGrounded = false;
-        }
-        else
-        {
             _isFalling = false;
+        }
+        // player is falling
+        else if (playerRigidBody.velocity.y < -0.1)
+        {
+            _isGrounded = false;
+            _isFalling = true;
         }
     }
 
@@ -213,8 +213,9 @@ public class Player : MonoBehaviour
         if (collision.gameObject.CompareTag("Floor"))
         {
             //Setting the free-fall velocity to 0 prevents boosted jumps at corners.
-            playerRigidBody.velocity = new Vector2(playerRigidBody.velocity.x, 0.0f);
+            stopMoving();
             _isGrounded = true;
+            _isFalling = false;
         }
 
         if (collision.gameObject.CompareTag("Wall"))
@@ -223,7 +224,7 @@ public class Player : MonoBehaviour
             if (currentAbility.Equals(ActiveAbility.EARTH))
             {
                 startHuggingWall();
-                playerRigidBody.velocity = new Vector2(playerRigidBody.velocity.x, 0.0f);
+                stopMoving();
             }
         }
     }
