@@ -173,7 +173,7 @@ public class Player : MonoBehaviour
         animator.SetBool("isFalling", _isFalling);
 
         // player is jumping
-        if (playerRigidBody.velocity.y > 0.1)
+        if (playerRigidBody.velocity.y >= 0.1)
         {
             _isGrounded = false;
             _isFalling = false;
@@ -213,7 +213,7 @@ public class Player : MonoBehaviour
         if (collision.gameObject.CompareTag("Floor"))
         {
             //Setting the free-fall velocity to 0 prevents boosted jumps at corners.
-            stopMoving();
+            playerRigidBody.velocity = new Vector2(playerRigidBody.velocity.x, 0.0f);
             _isGrounded = true;
             _isFalling = false;
         }
@@ -224,7 +224,7 @@ public class Player : MonoBehaviour
             if (currentAbility.Equals(ActiveAbility.EARTH))
             {
                 startHuggingWall();
-                stopMoving();
+                playerRigidBody.velocity = new Vector2(playerRigidBody.velocity.x, 0.0f);
             }
         }
     }
